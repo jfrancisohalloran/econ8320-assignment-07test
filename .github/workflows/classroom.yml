@@ -1,99 +1,29 @@
-name: Autograding Tests
-'on':
-- workflow_dispatch
-- repository_dispatch
-- push
+name: GitHub Classroom Workflow
+
+on:
+  - push
+  - workflow_dispatch
+
 permissions:
   checks: write
   actions: read
   contents: read
+
 jobs:
-  run-autograding-tests:
+  build:
+    name: Autograding
     runs-on: ubuntu-latest
     if: github.actor != 'github-classroom[bot]'
     steps:
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
           python-version: '3.9'
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Install Dependencies
-      run: |
+      - run: |
           python -m pip install --upgrade pip
+          pip install numpy==1.21.0 
           pip install -r requirements.txt
-    - name: Test Function
-      id: test-function
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Function
-        setup-command: ''
-        command: python -m unittest tests/testFunction.py
-        timeout: 1
-        max-score: 1
-    - name: Test Column Names
-      id: test-column-names
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Column Names
-        setup-command: ''
-        command: python -m unittest tests/testColumnNames.py
-        timeout: 1
-        max-score: 1
-    - name: Test Data Length
-      id: test-data-length
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Data Length
-        setup-command: ''
-        command: python -m unittest tests/testDataLength.py
-        timeout: 1
-        max-score: 1
-    - name: Test Pieces
-      id: test-pieces
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Pieces
-        setup-command: ''
-        command: python -m unittest tests/testPieces.py
-        timeout: 1
-        max-score: 1
-    - name: Test Price
-      id: test-price
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Price
-        setup-command: ''
-        command: python -m unittest tests/testPrice.py
-        timeout: 1
-        max-score: 1
-    - name: Test Set Names
-      id: test-set-names
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Set Names
-        setup-command: ''
-        command: python -m unittest tests/testSetNames.py
-        timeout: 1
-        max-score: 1
-    - name: Test Write File
-      id: test-write-file
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test Write File
-        setup-command: ''
-        command: python -m unittest tests/testWriteFile.py
-        timeout: 1
-        max-score: 1
-    - name: Autograding Reporter
-      uses: classroom-resources/autograding-grading-reporter@v1
-      env:
-        TEST-FUNCTION_RESULTS: "${{steps.test-function.outputs.result}}"
-        TEST-COLUMN-NAMES_RESULTS: "${{steps.test-column-names.outputs.result}}"
-        TEST-DATA-LENGTH_RESULTS: "${{steps.test-data-length.outputs.result}}"
-        TEST-PIECES_RESULTS: "${{steps.test-pieces.outputs.result}}"
-        TEST-PRICE_RESULTS: "${{steps.test-price.outputs.result}}"
-        TEST-SET-NAMES_RESULTS: "${{steps.test-set-names.outputs.result}}"
-        TEST-WRITE-FILE_RESULTS: "${{steps.test-write-file.outputs.result}}"
-      with:
-        runners: test-function,test-column-names,test-data-length,test-pieces,test-price,test-set-names,test-write-file
+      - name: Run scraping script to generate lego2019.csv
+        run: python si-exercise.py
+
+      - uses: education/autograding@v1
