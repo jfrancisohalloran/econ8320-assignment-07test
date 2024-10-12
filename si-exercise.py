@@ -7,7 +7,7 @@ import pandas as pd
 import re
 import time
 
-# A function to collect lego sets from search results on brickset.com
+# A  to collect lego sets from search results on brickset.com
 def collectLegoSets(startURL):
     # Add headers to imitate a real browser
     headers = {
